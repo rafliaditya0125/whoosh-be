@@ -1,0 +1,356 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Whoosh Ticket App API",
+    "description": "API documentation for the Whoosh train ticket booking application. Automatically updated to reflect code reality.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Main API server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string" },
+          "full_name": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "role": { "type": "string", "enum": ["user", "admin"] }
+        }
+      },
+      "Station": {
+        "type": "object",
+        "properties": {
+          "station_id": { "type": "string" },
+          "station_name": { "type": "string" },
+          "location": { "type": "string" }
+        }
+      },
+      "Train": {
+        "type": "object",
+        "properties": {
+          "train_id": { "type": "string" },
+          "train_name": { "type": "string" },
+          "train_code": { "type": "string" },
+          "total_seats": { "type": "number" }
+        }
+      },
+      "Seat": {
+        "type": "object",
+        "properties": {
+          "seat_id": { "type": "string" },
+          "train_id": { "type": "string" },
+          "seat_number": { "type": "string" },
+          "class": { "type": "string", "enum": ["economy", "business", "vip"] }
+        }
+      },
+      "Schedule": {
+        "type": "object",
+        "properties": {
+          "schedule_id": { "type": "string" },
+          "train_id": { "type": "string" },
+          "departure_station": { "type": "string" },
+          "arrival_station": { "type": "string" },
+          "departure_time": { "type": "string", "format": "date-time" },
+          "arrival_time": { "type": "string", "format": "date-time" },
+          "price": { "type": "number" }
+        }
+      },
+      "Booking": {
+        "type": "object",
+        "properties": {
+          "booking_id": { "type": "string" },
+          "booking_code": { "type": "string" },
+          "total_price": { "type": "number" },
+          "status": { "type": "string", "enum": ["pending", "paid", "completed", "cancelled"] }
+        }
+      },
+      "SavedPassenger": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "full_name": { "type": "string" },
+          "id_number": { "type": "string" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["full_name", "email", "phone", "password"],
+                "properties": {
+                  "full_name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "phone": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Success" },
+          "400": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Success" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get current user info",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } }
+        }
+      }
+    },
+    "/stations": {
+      "get": {
+        "tags": ["Stations"],
+        "summary": "List all stations",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Station" } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Stations"],
+        "summary": "Create station (Admin)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object", "required": ["station_name", "location"], "properties": { "station_name": { "type": "string" }, "location": { "type": "string" } } } } }
+        },
+        "responses": {
+          "201": { "description": "Created" }
+        }
+      }
+    },
+    "/stations/{id}": {
+      "get": {
+        "tags": ["Stations"],
+        "summary": "Get station by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Station" } } } }
+        }
+      },
+      "put": {
+        "tags": ["Stations"],
+        "summary": "Update station (Admin)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "type": "object", "properties": { "station_name": { "type": "string" }, "location": { "type": "string" } } } } }
+        },
+        "responses": {
+          "200": { "description": "Success" }
+        }
+      },
+      "delete": {
+        "tags": ["Stations"],
+        "summary": "Delete station (Admin)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Deleted" }
+        }
+      }
+    },
+    "/schedules": {
+      "get": {
+        "tags": ["Schedules"],
+        "summary": "List schedules with filters",
+        "parameters": [
+          { "name": "departure", "in": "query", "schema": { "type": "string" } },
+          { "name": "arrival", "in": "query", "schema": { "type": "string" } },
+          { "name": "date", "in": "query", "schema": { "type": "string", "format": "date" } }
+        ],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Schedule" } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Schedules"],
+        "summary": "Create schedule (Admin)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object", "required": ["train_id", "departure_station", "arrival_station", "departure_time", "arrival_time", "price"], "properties": { "train_id": { "type": "string" }, "departure_station": { "type": "string" }, "arrival_station": { "type": "string" }, "departure_time": { "type": "string", "format": "date-time" }, "arrival_time": { "type": "string", "format": "date-time" }, "price": { "type": "number" } } } } }
+        },
+        "responses": {
+          "201": { "description": "Created" }
+        }
+      }
+    },
+    "/bookings": {
+      "post": {
+        "tags": ["Bookings"],
+        "summary": "Create new booking",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["schedule_id", "passengers"],
+                "properties": {
+                  "schedule_id": { "type": "string" },
+                  "passengers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["full_name", "id_number"],
+                      "properties": {
+                        "full_name": { "type": "string" },
+                        "id_number": { "type": "string" },
+                        "seat_id": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Booking created" }
+        }
+      }
+    },
+    "/bookings/my": {
+      "get": {
+        "tags": ["Bookings"],
+        "summary": "Get current user ings",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["unpaid", "paid", "history"] } }
+        ],
+        "responses": {
+          "200": { "description": "Success" }
+        }
+      }
+    },
+    "/bookings/{id}/cancel": {
+      "post": {
+        "tags": ["Bookings"],
+        "summary": "Cancel booking",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Cancelled" }
+        }
+      }
+    },
+    "/payments/booking/{bookingId}": {
+      "post": {
+        "tags": ["Payments"],
+        "summary": "Process payment",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "bookingId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object", "required": ["payment_method", "amount"], "properties": { "payment_method": { "type": "string" }, "amount": { "type": "number" } } } } }
+        },
+        "responses": {
+          "201": { "description": "Payment processed" }
+        }
+      }
+    },
+    "/users/profile": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get profile",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } }
+        }
+      },
+      "put": {
+        "tags": ["User"],
+        "summary": "Update profile",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "type": "object", "properties": { "full_name": { "type": "string" }, "email": { "type": "string" }, "phone": { "type": "string" } } } } }
+        },
+        "responses": {
+          "200": { "description": "Success" }
+        }
+      }
+    },
+    "/saved-passengers": {
+        "get": {
+          "tags": ["User"],
+          "summary": "List saved passengers",
+          "security": [{ "bearerAuth": [] }],
+          "responses": {
+            "200": { "description": "Success", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SavedPassenger" } } } } }
+          }
+        },
+        "post": {
+          "tags": ["User"],
+          "summary": "Save passenger",
+          "security": [{ "bearerAuth": [] }],
+          "requestBody": {
+            "required": true,
+            "content": { "application/json": { "schema": { "type": "object", "required": ["full_name", "id_number"], "properties": { "full_name": { "type": "string" }, "id_number": { "type": "string" } } } } }
+          },
+          "responses": {
+            "201": { "description": "Saved" }
+          }
+        }
+      }
+  }
+}
