@@ -5,6 +5,7 @@ import { db } from '../../shared/db';
  * Payment repository interface
  */
 export interface PaymentRepository {
+  findById(paymentId: string): Promise<Payment | null>;
   findByBookingId(bookingId: string): Promise<Payment | null>;
   create(data: CreatePayment): Promise<string[]>;
   updateStatus(id: string, status: string): Promise<void>;
@@ -14,8 +15,12 @@ export interface PaymentRepository {
  * Payment repository implementation
  */
 export class PaymentRepositoryImpl implements PaymentRepository {
+  async findById(paymentId: string): Promise<Payment | null> {
+    return db('payments').where({ payment_id: paymentId }).first() as unknown as Payment | null;
+  }
+
   async findByBookingId(bookingId: string): Promise<Payment | null> {
-    return db('payments').where({ booking_id: bookingId }).first() as Payment | null;
+    return db('payments').where({ booking_id: bookingId }).first() as unknown as Payment | null;
   }
 
   async create(data: CreatePayment): Promise<string[]> {

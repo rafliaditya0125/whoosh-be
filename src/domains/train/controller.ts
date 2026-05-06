@@ -42,27 +42,19 @@ export class TrainControllerImpl implements TrainController {
       const trains = await this.trainService.findAll();
       response.json(trains);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
   async getById(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
-      const train = await this.trainService.findById(request.params.id);
+      const train = await this.trainService.findById(String(request.params.id) as string);
       if (!train) {
         throw new AppError('Train not found', 404, ErrorCode.NOT_FOUND);
       }
       response.json(train);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -77,11 +69,7 @@ export class TrainControllerImpl implements TrainController {
       const train_id = await this.trainService.create(createData);
       response.status(201).json({ train_id });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -93,27 +81,19 @@ export class TrainControllerImpl implements TrainController {
         total_seats: request.body.total_seats,
       };
 
-      await this.trainService.update(request.params.id, updateData);
+      await this.trainService.update(String(request.params.id) as string, updateData);
       response.json({ message: 'Train updated' });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
   async delete(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
-      await this.trainService.delete(request.params.id);
+      await this.trainService.delete(String(request.params.id) as string);
       response.json({ message: 'Train deleted' });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 }
@@ -131,59 +111,44 @@ export class SeatControllerImpl implements SeatController {
 
   async getByTrain(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
-      const seats = await this.seatService.findByTrainId(request.params.trainId);
+      const seats = await this.seatService.findByTrainId(String(request.params.trainId));
       response.json(seats);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
   async getByClass(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
       const { trainId, class: className } = request.params;
-      const seats = await this.seatService.findByClass(trainId, className as 'economy' | 'business' | 'vip');
+      const classValue = Array.isArray(className) ? className[0] : className;
+      const seats = await this.seatService.findByClass(String(trainId), String(classValue) as 'economy' | 'business' | 'vip');
       response.json(seats);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
   async create(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
-      const createData: CreateSeat = {
+      const createData: CreateSeat = { train_id: String(request.params.trainId),
         seat_number: request.body.seat_number,
         class: request.body.class,
       };
 
-      const seat_id = await this.seatService.create(request.params.trainId, createData);
+      const seat_id = await this.seatService.create(String(request.params.trainId), createData);
       response.status(201).json({ seat_id });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
   async delete(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
-      await this.seatService.delete(request.params.id);
+      await this.seatService.delete(String(request.params.id) as string);
       response.json({ message: 'Seat deleted' });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 }

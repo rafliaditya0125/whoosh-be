@@ -17,11 +17,11 @@ export interface StationRepository {
  */
 export class StationRepositoryImpl implements StationRepository {
   async findAll(): Promise<Station[]> {
-    return db('stations').select('*') as Station[];
+    return db('stations').select('*') as unknown as Station[];
   }
 
   async findById(id: string): Promise<Station | null> {
-    return db('stations').where({ station_id: id }).first() as Station | null;
+    return db('stations').where({ station_id: id }).first() as unknown as Station | null;
   }
 
   async create(data: CreateStation): Promise<string[]> {

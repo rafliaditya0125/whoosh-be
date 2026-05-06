@@ -60,3 +60,5 @@ coverage/
 
 # Document
 *.docx
+
+docs/*Guide.md

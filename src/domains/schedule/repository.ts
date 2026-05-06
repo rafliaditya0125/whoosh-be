@@ -38,7 +38,7 @@ export class ScheduleRepositoryImpl implements ScheduleRepository {
       query = query.whereRaw('DATE(departure_time) = ?', [params.date]);
     }
 
-    return query as Schedule[];
+    return query as unknown as Schedule[];
   }
 
   async findById(id: string): Promise<Schedule | null> {
@@ -47,7 +47,7 @@ export class ScheduleRepositoryImpl implements ScheduleRepository {
       .join('stations as dep', 'schedules.departure_station', 'dep.station_id')
       .join('stations as arr', 'schedules.arrival_station', 'arr.station_id')
       .where('schedule_id', id)
-      .first() as Schedule | null;
+      .first() as unknown as Schedule | null;
   }
 
   async create(data: CreateSchedule): Promise<string[]> {

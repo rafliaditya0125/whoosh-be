@@ -23,6 +23,6 @@
     "resolveJsonModule": true,
     "types": ["jest", "node", "supertest"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/shared/express.d.ts"],
   "exclude": ["node_modules", "dist", "migrations", "seeds"]
 }

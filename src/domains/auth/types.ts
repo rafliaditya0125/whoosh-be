@@ -21,19 +21,23 @@ export interface RegisterRequest {
 }
 
 /**
- * Auth response interface
+ * Auth response interface (for login and register)
  */
 export interface AuthResponse {
   token: string;
-  user: {
-    id: string;
-    name: string;
-    role: 'user' | 'admin';
-  };
+  user: UserResponse; // Use consistent UserResponse schema
 }
 
 /**
- * User response interface
+ * Register response interface
+ */
+export interface RegisterResponse {
+  message: string;
+  user: UserResponse; // Return full user object, not just user_id
+}
+
+/**
+ * User response interface (consistent schema for all endpoints)
  */
 export interface UserResponse {
   user_id: string;

@@ -22,3 +22,6 @@ bookingRoutes.post('/', authMiddleware, bookingController.createBooking);
 bookingRoutes.get('/my', authMiddleware, bookingController.getMyBookings);
 bookingRoutes.get('/:id', authMiddleware, bookingController.getBookingDetail);
 bookingRoutes.post('/:id/cancel', authMiddleware, bookingController.cancelBooking);
+bookingRoutes.post('/:id/reschedule', authMiddleware, bookingController.rescheduleBooking);
+bookingRoutes.post('/:id/refund', authMiddleware, bookingController.requestRefund);
+bookingRoutes.get('/refunds/:id', authMiddleware, bookingController.getRefundStatus);

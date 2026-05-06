@@ -5,11 +5,17 @@ import { db } from '../../shared/db';
  */
 export interface BookingRepository {
   findById(id: string): Promise<Booking | null>;
+  findByIdWithDetails(id: string): Promise<any>;
   findByUserId(userId: string): Promise<Booking[]>;
+  findByUserIdWithDetails(userId: string): Promise<any[]>;
   create(data: Partial<Booking>): Promise<string[]>;
   updateStatus(id: string, status: string): Promise<void>;
   addPassengers(passengers: Partial<BookingPassenger>[]): Promise<void>;
   getPassengers(bookingId: string): Promise<BookingPassenger[]>;
+  createRefund(data: any): Promise<number[]>;
+  getRefundById(id: string): Promise<any>;
+  createRescheduleHistory(data: any): Promise<number[]>;
+  updateBookingSchedule(bookingId: string, scheduleId: string): Promise<void>;
 }
 
 /**
@@ -129,6 +135,146 @@ export class BookingRepositoryImpl implements BookingRepository {
       .join('seats', 'booking_passengers.seat_id', 'seats.seat_id')
       .select('booking_passengers.*', 'seats.seat_number', 'seats.class')
       .where('booking_id', bookingId) as unknown as BookingPassenger[];
+  }
+
+  async createRefund(data: any): Promise<number[]> {
+    return db('refunds').insert(data);
+  }
+
+  async getRefundById(id: string): Promise<any> {
+    return db('refunds').where({ refund_id: id }).first();
+  }
+
+  async createRescheduleHistory(data: any): Promise<number[]> {
+    return db('reschedule_history').insert(data);
+  }
+
+  async updateBookingSchedule(bookingId: string, scheduleId: string): Promise<void> {
+    await db('bookings').where({ booking_id: bookingId }).update({ schedule_id: scheduleId });
+  }
+
+  async findByUserIdWithDetails(userId: string): Promise<any[]> {
+    const bookings = await db('bookings')
+      .where('bookings.user_id', userId)
+      .orderBy('bookings.created_at', 'desc')
+      .select('bookings.*');
+
+    const result = [];
+    for (const booking of bookings) {
+      const detail = await this.findByIdWithDetails(booking.booking_id);
+      if (detail) {
+        result.push(detail);
+      }
+    }
+
+    return result;
+  }
+
+  async findByIdWithDetails(id: string): Promise<any> {
+    // Get booking with schedule, train, and stations
+    const booking = await db('bookings')
+      .join('schedules', 'bookings.schedule_id', 'schedules.schedule_id')
+      .join('trains', 'schedules.train_id', 'trains.train_id')
+      .join('stations as dep', 'schedules.departure_station', 'dep.station_id')
+      .join('stations as arr', 'schedules.arrival_station', 'arr.station_id')
+      .select(
+        'bookings.booking_id',
+        'bookings.booking_code',
+        'bookings.status',
+        'bookings.total_price',
+        'bookings.created_at',
+        'schedules.schedule_id',
+        'schedules.departure_time',
+        'schedules.arrival_time',
+        'schedules.price',
+        'trains.train_id',
+        'trains.train_name',
+        'trains.train_code',
+        'dep.station_id as dep_station_id',
+        'dep.station_name as dep_station_name',
+        'dep.location as dep_location',
+        'arr.station_id as arr_station_id',
+        'arr.station_name as arr_station_name',
+        'arr.location as arr_location'
+      )
+      .where('bookings.booking_id', id)
+      .first();
+
+    if (!booking) return null;
+
+    // Get passengers with seats
+    const passengers = await db('booking_passengers')
+      .leftJoin('seats', 'booking_passengers.seat_id', 'seats.seat_id')
+      .select(
+        'booking_passengers.full_name',
+        'booking_passengers.id_number',
+        'seats.seat_id',
+        'seats.seat_number',
+        'seats.class'
+      )
+      .where('booking_passengers.booking_id', id);
+
+    // Get payment info
+    const payment = await db('payments')
+      .select('payment_id', 'payment_status as status', 'payment_method as method', 'created_at as paid_at')
+      .where('booking_id', id)
+      .first();
+
+    // Get ticket info
+    const ticket = await db('tickets')
+      .select('ticket_id', 'qr_data')
+      .where('booking_id', id)
+      .first();
+
+    // Format response according to mobile contract
+    return {
+      booking_id: booking.booking_id,
+      booking_code: booking.booking_code,
+      status: booking.status,
+      total_price: booking.total_price,
+      created_at: booking.created_at,
+      schedule: {
+        schedule_id: booking.schedule_id,
+        departure_station: {
+          station_id: booking.dep_station_id,
+          station_name: booking.dep_station_name,
+          location: booking.dep_location,
+        },
+        arrival_station: {
+          station_id: booking.arr_station_id,
+          station_name: booking.arr_station_name,
+          location: booking.arr_location,
+        },
+        departure_time: booking.departure_time,
+        arrival_time: booking.arrival_time,
+        train: {
+          train_id: booking.train_id,
+          train_name: booking.train_name,
+          train_code: booking.train_code,
+        },
+        price: booking.price,
+      },
+      passengers: passengers.map((p: any) => ({
+        full_name: p.full_name,
+        id_number: p.id_number,
+        seat: p.seat_id ? {
+          seat_id: p.seat_id,
+          seat_number: p.seat_number,
+          class: p.class,
+        } : null,
+      })),
+      payment: payment ? {
+        payment_id: payment.payment_id,
+        status: payment.status,
+        method: payment.method,
+        paid_at: payment.paid_at,
+      } : null,
+      ticket: ticket ? {
+        ticket_id: ticket.ticket_id,
+        qr_code_url: `/api/tickets/${ticket.ticket_id}/qr`,
+        qr_data: ticket.qr_data,
+      } : null,
+    };
   }
 }
 

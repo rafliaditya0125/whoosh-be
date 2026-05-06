@@ -1,7 +1,7 @@
 import { BookingServiceImpl } from '../src/domains/booking/service';
 import { BookingRepository, SeatRepository } from '../src/domains/booking/repository';
 import { db } from '../src/shared/db';
-import { AppError } from '../src/shared/error';
+import { AppError, UserErrorCode } from '../src/shared/error';
 
 // Mock dependencies
 jest.mock('uuid', () => ({
@@ -82,8 +82,15 @@ describe('BookingService', () => {
       (trxMock as any).rollback = jest.fn();
       (db.transaction as jest.Mock).mockResolvedValue(trxMock);
 
-      await expect(bookingService.createBooking(createRequest, userId)).rejects.toThrow(AppError);
-      expect((trxMock as any).rollback).toHaveBeenCalled();
+      try {
+        await bookingService.createBooking(createRequest, userId);
+        fail('Should have thrown error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError);
+        expect((error as AppError).statusCode).toBe(404);
+        expect((error as AppError).code).toBe(UserErrorCode.NOT_FOUND);
+        expect((trxMock as any).rollback).toHaveBeenCalled();
+      }
     });
 
     // Extreme Scenario: requesting more passengers than physical capacity (simulated)
@@ -149,10 +156,17 @@ describe('BookingService', () => {
         mockBookingRepository.create.mockResolvedValue(['booking-1']);
         mockSeatRepository.getAvailableSeats.mockResolvedValue([]); // Empty
   
-        await expect(bookingService.createBooking({
-            schedule_id: 'sched-1',
-            passengers: [{ full_name: 'P1', id_number: 'ID1' }]
-        }, userId)).rejects.toThrow(AppError);
+        try {
+          await bookingService.createBooking({
+              schedule_id: 'sched-1',
+              passengers: [{ full_name: 'P1', id_number: 'ID1' }]
+          }, userId);
+          fail('Should have thrown error');
+        } catch (error) {
+          expect(error).toBeInstanceOf(AppError);
+          expect((error as AppError).statusCode).toBe(422);
+          expect((error as AppError).code).toBe(UserErrorCode.NO_SEATS_AVAILABLE);
+        }
     });
   });
 
@@ -174,7 +188,14 @@ describe('BookingService', () => {
     it('should throw AppError if booking not found', async () => {
       mockBookingRepository.findById.mockResolvedValue(null);
 
-      await expect(bookingService.cancelBooking('booking-1', 'user-1')).rejects.toThrow(AppError);
+      try {
+        await bookingService.cancelBooking('booking-1', 'user-1');
+        fail('Should have thrown error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError);
+        expect((error as AppError).statusCode).toBe(404);
+        expect((error as AppError).code).toBe(UserErrorCode.NOT_FOUND);
+      }
     });
 
     it('should throw AppError if status is not pending', async () => {
@@ -185,7 +206,14 @@ describe('BookingService', () => {
       };
       mockBookingRepository.findById.mockResolvedValue(mockBooking as any);
 
-      await expect(bookingService.cancelBooking('booking-1', 'user-1')).rejects.toThrow(AppError);
+      try {
+        await bookingService.cancelBooking('booking-1', 'user-1');
+        fail('Should have thrown error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError);
+        expect((error as AppError).statusCode).toBe(422);
+        expect((error as AppError).code).toBe(UserErrorCode.CANNOT_CANCEL_PAID_BOOKING);
+      }
     });
   });
 });

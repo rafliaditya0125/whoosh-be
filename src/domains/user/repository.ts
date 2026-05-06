@@ -27,11 +27,11 @@ export interface SavedPassengerRepository {
  */
 export class UserRepositoryImpl implements UserRepository {
   async findByEmail(email: string): Promise<User | null> {
-    return db('users').where({ email }).first() as User | null;
+    return db('users').where({ email }).first() as unknown as User | null;
   }
 
   async findById(id: string): Promise<User | null> {
-    return db('users').where({ user_id: id }).first() as User | null;
+    return db('users').where({ user_id: id }).first() as unknown as User | null;
   }
 
   async create(data: CreateUser): Promise<string[]> {
@@ -52,7 +52,7 @@ export class UserRepositoryImpl implements UserRepository {
  */
 export class SavedPassengerRepositoryImpl implements SavedPassengerRepository {
   async findByUserId(userId: string): Promise<SavedPassenger[]> {
-    return db('saved_passengers').where({ user_id: userId }) as SavedPassenger[];
+    return db('saved_passengers').where({ user_id: userId }) as unknown as SavedPassenger[];
   }
 
   async findById(id: string): Promise<SavedPassenger | null> {

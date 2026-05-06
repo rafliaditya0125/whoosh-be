@@ -18,4 +18,5 @@ const paymentController = new PaymentControllerImpl(paymentService);
 export const paymentRoutes = Router();
 
 paymentRoutes.post('/booking/:bookingId', authMiddleware, paymentController.create);
+paymentRoutes.get('/:paymentId', authMiddleware, paymentController.getStatus);
 paymentRoutes.put('/:paymentId/status', authMiddleware, paymentController.updateStatus);

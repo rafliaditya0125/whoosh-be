@@ -1,6 +1,6 @@
 import { UserRepository, SavedPassengerRepository } from './repository';
 import { User, SavedPassenger, CreateSavedPassenger } from './types';
-import { AppError, ErrorCode } from '../../shared/error';
+import { UserErrorHelper, ServerErrorHelper } from '../../shared/error';
 
 /**
  * User service interface
@@ -27,23 +27,49 @@ export class UserServiceImpl implements UserService {
   constructor(private userRepository: UserRepository) {}
 
   async findById(id: string): Promise<User | null> {
-    return this.userRepository.findById(id);
+    const user = await this.userRepository.findById(id);
+    if (!user) {
+      throw UserErrorHelper.notFound('User', id);
+    }
+    return user;
   }
 
   async update(id: string, data: Partial<User>): Promise<void> {
     const existing = await this.userRepository.findById(id);
     if (!existing) {
-      throw new AppError('User not found', 404, ErrorCode.NOT_FOUND);
+      throw UserErrorHelper.notFound('User', id);
     }
-    await this.userRepository.update(id, data);
+    
+    try {
+      await this.userRepository.update(id, data);
+    } catch (error) {
+      if (error instanceof Error && 'code' in error) {
+        throw ServerErrorHelper.databaseError('update user', {
+          operation: 'update_user',
+          user_id: id,
+        });
+      }
+      throw error;
+    }
   }
 
   async delete(id: string): Promise<void> {
     const existing = await this.userRepository.findById(id);
     if (!existing) {
-      throw new AppError('User not found', 404, ErrorCode.NOT_FOUND);
+      throw UserErrorHelper.notFound('User', id);
     }
-    await this.userRepository.delete(id);
+    
+    try {
+      await this.userRepository.delete(id);
+    } catch (error) {
+      if (error instanceof Error && 'code' in error) {
+        throw ServerErrorHelper.databaseError('delete user', {
+          operation: 'delete_user',
+          user_id: id,
+        });
+      }
+      throw error;
+    }
   }
 }
 
@@ -58,15 +84,36 @@ export class SavedPassengerServiceImpl implements SavedPassengerService {
   }
 
   async create(userId: string, data: CreateSavedPassenger): Promise<string> {
-    const [id] = await this.savedPassengerRepository.create({ ...data, user_id: userId });
-    return id;
+    try {
+      const [id] = await this.savedPassengerRepository.create({ ...data, user_id: userId });
+      return id;
+    } catch (error) {
+      if (error instanceof Error && 'code' in error) {
+        throw ServerErrorHelper.databaseError('membuat saved passenger', {
+          operation: 'create_saved_passenger',
+          user_id: userId,
+        });
+      }
+      throw error;
+    }
   }
 
   async delete(id: string): Promise<void> {
     const existing = await this.savedPassengerRepository.findById(id);
     if (!existing) {
-      throw new AppError('Saved passenger not found', 404, ErrorCode.NOT_FOUND);
+      throw UserErrorHelper.notFound('Saved passenger', id);
     }
-    await this.savedPassengerRepository.delete(id);
+    
+    try {
+      await this.savedPassengerRepository.delete(id);
+    } catch (error) {
+      if (error instanceof Error && 'code' in error) {
+        throw ServerErrorHelper.databaseError('delete saved passenger', {
+          operation: 'delete_saved_passenger',
+          saved_passenger_id: id,
+        });
+      }
+      throw error;
+    }
   }
 }

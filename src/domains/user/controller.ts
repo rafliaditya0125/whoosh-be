@@ -52,11 +52,7 @@ export class UserControllerImpl implements UserController {
         role: user.role,
       });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -76,11 +72,7 @@ export class UserControllerImpl implements UserController {
       await this.userService.update(userId, updateData);
       response.json({ message: 'Profile updated' });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -94,11 +86,7 @@ export class UserControllerImpl implements UserController {
       await this.userService.delete(userId);
       response.json({ message: 'Profile deleted' });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 }
@@ -123,11 +111,7 @@ export class SavedPassengerControllerImpl implements SavedPassengerController {
       const passengers = await this.savedPassengerService.findByUserId(userId);
       response.json(passengers);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -138,7 +122,7 @@ export class SavedPassengerControllerImpl implements SavedPassengerController {
         throw new AppError('User not authenticated', 401, ErrorCode.UNAUTHORIZED);
       }
 
-      const createData: CreateSavedPassenger = {
+      const createData: CreateSavedPassenger = { user_id: userId,
         full_name: request.body.full_name,
         id_number: request.body.id_number,
       };
@@ -146,24 +130,16 @@ export class SavedPassengerControllerImpl implements SavedPassengerController {
       const id = await this.savedPassengerService.create(userId, createData);
       response.status(201).json({ id });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
   async delete(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
-      await this.savedPassengerService.delete(request.params.id);
+      await this.savedPassengerService.delete(request.params.id as string);
       response.json({ message: 'Saved passenger deleted' });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 }

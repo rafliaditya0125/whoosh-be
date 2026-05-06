@@ -32,27 +32,19 @@ export class StationControllerImpl implements StationController {
       const stations = await this.stationService.findAll();
       response.json(stations);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
   async getById(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
-      const station = await this.stationService.findById(request.params.id);
+      const station = await this.stationService.findById(request.params.id as string);
       if (!station) {
         throw new AppError('Station not found', 404, ErrorCode.NOT_FOUND);
       }
       response.json(station);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -66,11 +58,7 @@ export class StationControllerImpl implements StationController {
       const station_id = await this.stationService.create(createData);
       response.status(201).json({ station_id });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -81,27 +69,19 @@ export class StationControllerImpl implements StationController {
         location: request.body.location,
       };
 
-      await this.stationService.update(request.params.id, updateData);
+      await this.stationService.update(request.params.id as string, updateData);
       response.json({ message: 'Station updated' });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
   async delete(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
-      await this.stationService.delete(request.params.id);
+      await this.stationService.delete(request.params.id as string);
       response.json({ message: 'Station deleted' });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 }

@@ -38,27 +38,19 @@ export class ScheduleControllerImpl implements ScheduleController {
       const schedules = await this.scheduleService.findAll(params);
       response.json(schedules);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
   async getById(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
-      const schedule = await this.scheduleService.findById(request.params.id);
+      const schedule = await this.scheduleService.findById(request.params.id as string);
       if (!schedule) {
         throw new AppError('Schedule not found', 404, ErrorCode.NOT_FOUND);
       }
       response.json(schedule);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -76,11 +68,7 @@ export class ScheduleControllerImpl implements ScheduleController {
       const schedule_id = await this.scheduleService.create(createData);
       response.status(201).json({ schedule_id });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -95,27 +83,19 @@ export class ScheduleControllerImpl implements ScheduleController {
         price: request.body.price,
       };
 
-      await this.scheduleService.update(request.params.id, updateData);
+      await this.scheduleService.update(request.params.id as string, updateData);
       response.json({ message: 'Schedule updated' });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
   async delete(request: Request, response: Response, next: NextFunction): Promise<void> {
     try {
-      await this.scheduleService.delete(request.params.id);
+      await this.scheduleService.delete(request.params.id as string);
       response.json({ message: 'Schedule deleted' });
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 }

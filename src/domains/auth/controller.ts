@@ -33,11 +33,7 @@ export class AuthControllerImpl implements AuthController {
       const result = await this.authService.login(loginRequest);
       response.json(result);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -53,11 +49,7 @@ export class AuthControllerImpl implements AuthController {
       const result = await this.authService.register(registerRequest);
       response.status(201).json(result);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 
@@ -71,11 +63,7 @@ export class AuthControllerImpl implements AuthController {
       const result = await this.authService.me(userId);
       response.json(result);
     } catch (error) {
-      if (error instanceof AppError) {
-        response.status(error.statusCode).json({ error: error.message });
-      } else {
-        next(error);
-      }
+      next(error); // Let error handler middleware handle all errors
     }
   }
 }

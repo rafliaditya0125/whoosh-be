@@ -27,6 +27,7 @@ export interface PassengerResponse {
 export interface CreateBookingRequest {
   schedule_id: string;
   passengers: Passenger[];
+  lock_id?: string;
 }
 
 /**

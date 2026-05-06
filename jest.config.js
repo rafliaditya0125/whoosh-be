@@ -9,4 +9,7 @@ module.exports = {
   coverageDirectory: 'coverage',
   setupFilesAfterEnv: [],
   modulePaths: ['src'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(uuid)/)',
+  ],
 };

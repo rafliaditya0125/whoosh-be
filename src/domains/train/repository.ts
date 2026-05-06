@@ -28,11 +28,11 @@ export interface SeatRepository {
  */
 export class TrainRepositoryImpl implements TrainRepository {
   async findAll(): Promise<Train[]> {
-    return db('trains').select('*') as Train[];
+    return db('trains').select('*') as unknown as Train[];
   }
 
   async findById(id: string): Promise<Train | null> {
-    return db('trains').where({ train_id: id }).first() as Train | null;
+    return db('trains').where({ train_id: id }).first() as unknown as Train | null;
   }
 
   async create(data: CreateTrain): Promise<string[]> {
@@ -53,15 +53,15 @@ export class TrainRepositoryImpl implements TrainRepository {
  */
 export class SeatRepositoryImpl implements SeatRepository {
   async findByTrainId(trainId: string): Promise<Seat[]> {
-    return db('seats').where({ train_id: trainId }) as Seat[];
+    return db('seats').where({ train_id: trainId }) as unknown as Seat[];
   }
 
   async findByClass(trainId: string, className: 'economy' | 'business' | 'vip'): Promise<Seat[]> {
-    return db('seats').where({ train_id: trainId, class: className }) as Seat[];
+    return db('seats').where({ train_id: trainId, class: className }) as unknown as Seat[];
   }
 
   async findById(id: string): Promise<Seat | null> {
-    return db('seats').where({ seat_id: id }).first() as Seat | null;
+    return db('seats').where({ seat_id: id }).first() as unknown as Seat | null;
   }
 
   async create(data: CreateSeat): Promise<string[]> {
