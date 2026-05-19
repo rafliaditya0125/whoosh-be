@@ -1,6 +1,14 @@
 # API Documentation - Whoosh Ticket App
 
-This documentation is updated based on the current implementation of the backend (v1.3.0).
+This documentation is updated based on the current implementation of the backend (v1.4.0).
+
+**Version 1.4.0 Updates (PRODUCTION READY):**
+- ✅ Added required fields to all schemas
+- ✅ Added validation constraints (minLength, maxLength, pattern, minimum)
+- ✅ Added field descriptions and examples
+- ✅ Added pagination support for list endpoints
+- ✅ Added contact information
+- ✅ Production-ready according to industry standards
 
 **Version 1.3.0 Updates:**
 - Fixed auth response schema inconsistency (login, register, me endpoints now use consistent User schema)
@@ -14,6 +22,60 @@ This documentation is updated based on the current implementation of the backend
 - Field-level validation error details
 
 ## Base URL: `/api`
+
+## Pagination
+
+All list endpoints support pagination to improve performance and user experience.
+
+### Pagination Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `page` | integer | No | 1 | Page number (1-indexed) |
+| `limit` | integer | No | 20 | Items per page (max: 100) |
+
+### Pagination Response Format
+
+```json
+{
+  "items": [ ... ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
+  }
+}
+```
+
+### Example Request
+
+```
+GET /api/stations?page=2&limit=10
+```
+
+### Example Response
+
+```json
+{
+  "items": [
+    {
+      "station_id": "11",
+      "station_name": "Bandung",
+      "location": "Bandung"
+    },
+    ...
+  ],
+  "pagination": {
+    "page": 2,
+    "limit": 10,
+    "total": 45,
+    "totalPages": 5
+  }
+}
+```
+
+---
 
 ## Authentication
 
@@ -427,13 +489,12 @@ Get QR code for ticket.
   ```json
   {
     "ticket_id": "ticket123",
-    "booking_code": "WOOSH123",
-    "qr_code": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
     "qr_data": "ENC:abc123def456...",
-    "expires_at": "2026-05-01T10:00:00Z",
+    "expires_at": "2026-05-14T15:00:00Z",
     "status": "valid"
   }
   ```
+- **Note:** QR code expires at **departure time** (not 24 hours). If you buy ticket 1 week in advance, QR code is valid for 1 week until departure. No need to regenerate!
 
 #### POST `/tickets/validate`
 Validate QR code at check-in (used by station staff).
@@ -779,6 +840,9 @@ try {
 1. **Seat Locking**: Lock seats temporarily during booking process
 2. **Reschedule & Refund**: Request reschedule or refund for bookings
 3. **QR Code**: Generate and validate QR codes for tickets
+   - **QR Code Expiration**: Expires at departure time (not 24h fixed)
+   - **One-Time Generation**: Generate once, valid until departure
+   - **Security**: AES-256-CBC encryption + JWT signature
 4. **Payment Status**: Track payment status with dedicated endpoint
 5. **Enhanced Booking Response**: Nested data structure with full details
 
@@ -791,6 +855,16 @@ try {
 ---
 
 ## Changelog
+
+### v1.4.0 (07-05-2026) - PRODUCTION READY ✅
+- **Added:** Required fields to all schemas
+- **Added:** Validation constraints (minLength, maxLength, pattern, minimum, maximum)
+- **Added:** Field descriptions and examples for all schemas
+- **Added:** Pagination support for list endpoints (stations, schedules, bookings)
+- **Added:** Pagination schema and paginated response schemas
+- **Added:** Contact information (API support email)
+- **Improved:** OpenAPI spec now meets industry standards
+- **Status:** Production-ready according to industry best practices
 
 ### v1.3.0 (06-05-2026)
 - **Fixed:** Auth response schema inconsistency
@@ -811,4 +885,4 @@ try {
 
 ---
 
-*Generated and updated: 06-05-2026 (v1.3.0 - Fixed auth response schema inconsistency)*
+*Generated and updated: 07-05-2026 (v1.4.0 - Production-ready with pagination, validation, and comprehensive documentation)*

@@ -6,10 +6,10 @@
  */
 
 import bcrypt from 'bcryptjs';
-import { AuthServiceImpl } from '../src/domains/auth/service';
-import { AuthRepository } from '../src/domains/auth/repository';
-import { PaymentServiceImpl } from '../src/domains/payment/service';
-import { PaymentRepository } from '../src/domains/payment/repository';
+import { AuthServiceImpl } from '../src/domains/auth/authService';
+import { AuthRepository } from '../src/domains/auth/authRepository';
+import { PaymentServiceImpl } from '../src/domains/payment/paymentService';
+import { PaymentRepository } from '../src/domains/payment/paymentRepository';
 import { UserErrorCode, ServerErrorCode, AppError } from '../src/shared/error';
 
 // Mock dependencies

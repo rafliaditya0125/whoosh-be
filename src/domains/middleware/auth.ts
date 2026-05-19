@@ -30,7 +30,7 @@ export const authMiddleware: AuthMiddleware = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret') as {
       user_id: string;
       email: string;
-      role: 'user' | 'admin';
+      role: 'user' | 'manager' | 'admin';
     };
 
     request.user = {

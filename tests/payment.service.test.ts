@@ -1,5 +1,5 @@
-import { PaymentServiceImpl } from '../src/domains/payment/service';
-import { PaymentRepository } from '../src/domains/payment/repository';
+import { PaymentServiceImpl } from '../src/domains/payment/paymentService';
+import { PaymentRepository } from '../src/domains/payment/paymentRepository';
 
 describe('PaymentService', () => {
   let paymentService: PaymentServiceImpl;

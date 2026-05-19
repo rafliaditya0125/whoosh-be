@@ -2,7 +2,7 @@
  * Booking domain exports
  */
 
-export * from './types';
-export * from './service';
-export * from './controller';
-export * from './routes';
+export * from './bookingTypes';
+export * from './bookingService';
+export * from './bookingController';
+export * from './bookingRoutes';

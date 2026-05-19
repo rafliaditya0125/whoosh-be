@@ -55,10 +55,5 @@ coverage/
 *.key
 *.cert
 
-# Agent Configuration
-.agent/
-
-# Document
-*.docx
-
-docs/*Guide.md
+# Symlink
+*.link

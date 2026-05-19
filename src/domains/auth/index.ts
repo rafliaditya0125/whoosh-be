@@ -2,8 +2,8 @@
  * Auth domain exports
  */
 
-export * from './types';
-export * from './repository';
-export * from './service';
-export * from './controller';
-export * from './routes';
+export * from './authTypes';
+export * from './authRepository';
+export * from './authService';
+export * from './authController';
+export * from './authRoutes';

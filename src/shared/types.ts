@@ -5,7 +5,7 @@ import { ParsedQs } from 'qs';
 /**
  * Role types for users
  */
-export type Role = 'user' | 'admin';
+export type Role = 'user' | 'manager' | 'admin';
 
 /**
  * Request interface with typed user information
@@ -43,8 +43,19 @@ export interface RequestWithBody<T> extends Request {
 }
 
 /**
- * Request interface with query parameters
+ * Pagination metadata
  */
-export interface RequestWithQuery<T extends ParsedQs> extends Request {
-  query: T;
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+/**
+ * Paginated response
+ */
+export interface PaginatedResponse<T> {
+  items: T[];
+  pagination: Pagination;
 }

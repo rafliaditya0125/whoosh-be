@@ -80,7 +80,7 @@ describe('Security - Error Handler', () => {
 
     it('should NEVER leak internal file paths to client', () => {
       const error = new Error('Internal error');
-      error.stack = 'Error: Internal error\n    at /home/user/whoosh-be/src/domains/auth/service.ts:123:45';
+      error.stack = 'Error: Internal error\n    at /home/user/whoosh-be/src/domains/auth/authService.ts:123:45';
 
       errorHandler(error, mockRequest as Request, mockResponse as Response, mockNext);
 

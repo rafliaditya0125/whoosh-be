@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { AuthServiceImpl } from '../src/domains/auth/service';
-import { AuthRepository } from '../src/domains/auth/repository';
+import { AuthServiceImpl } from '../src/domains/auth/authService';
+import { AuthRepository } from '../src/domains/auth/authRepository';
 import { AppError, UserErrorCode, ServerErrorCode } from '../src/shared/error';
 
 // Mock dependencies
@@ -107,6 +107,28 @@ describe('AuthService', () => {
       expect(result.token).toBe('mock-token');
       expect(bcrypt.compare).toHaveBeenCalledWith(longPassword, 'hashed-password');
     });
+
+    it('should throw AppError if email or password is missing', async () => {
+      // Missing email
+      try {
+        await authService.login({ email: '', password: 'password123' });
+        fail('Should have thrown error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError);
+        expect((error as AppError).statusCode).toBe(400);
+        expect((error as AppError).code).toBe(UserErrorCode.VALIDATION_ERROR);
+        expect((error as AppError).message).toContain('wajib diisi');
+      }
+
+      // Missing password
+      try {
+        await authService.login({ email: 'test@example.com', password: '' });
+        fail('Should have thrown error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError);
+        expect((error as AppError).statusCode).toBe(400);
+      }
+    });
   });
 
   describe('register', () => {
@@ -134,6 +156,25 @@ describe('AuthService', () => {
         },
       });
       expect(mockAuthRepository.create).toHaveBeenCalled();
+    });
+
+    it('should throw AppError if any field is missing', async () => {
+      const incompleteRequest = {
+        full_name: '',
+        email: 'test@example.com',
+        phone: '+628123456789',
+        password: 'password123',
+      };
+
+      try {
+        await authService.register(incompleteRequest);
+        fail('Should have thrown error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError);
+        expect((error as AppError).statusCode).toBe(400);
+        expect((error as AppError).code).toBe(UserErrorCode.VALIDATION_ERROR);
+        expect((error as AppError).message).toContain('wajib diisi');
+      }
     });
 
     // Extreme Scenario: Duplicate entry simulation

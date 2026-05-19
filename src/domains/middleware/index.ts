@@ -4,3 +4,4 @@
 
 export * from './auth';
 export * from './adminOnly';
+export * from './managerOnly';

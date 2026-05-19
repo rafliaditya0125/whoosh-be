@@ -2,8 +2,8 @@
  * Payment domain exports
  */
 
-export * from './types';
-export * from './repository';
-export * from './service';
-export * from './controller';
-export * from './routes';
+export * from './paymentTypes';
+export * from './paymentRepository';
+export * from './paymentService';
+export * from './paymentController';
+export * from './paymentRoutes';

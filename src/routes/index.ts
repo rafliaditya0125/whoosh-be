@@ -9,6 +9,8 @@ import { stationRoutes } from '../domains/station';
 import { ticketRoutes } from '../domains/ticket';
 import { trainRoutes } from '../domains/train';
 import { userRoutes, savedPassengerRoutes } from '../domains/user';
+import { managerRoutes } from '../domains/manager';
+import { adminRoutes } from '../domains/admin';
 
 const router = Router();
 
@@ -22,5 +24,7 @@ router.use('/seats', seatRoutes);
 router.use('/tickets', ticketRoutes);
 router.use('/users', userRoutes);
 router.use('/saved-passengers', savedPassengerRoutes);
+router.use('/manager', managerRoutes);
+router.use('/admin', adminRoutes);
 
 export default router;

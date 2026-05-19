@@ -1,5 +1,5 @@
-import { BookingServiceImpl } from '../src/domains/booking/service';
-import { BookingRepository, SeatRepository } from '../src/domains/booking/repository';
+import { BookingServiceImpl } from '../src/domains/booking/bookingService';
+import { BookingRepository, SeatRepository } from '../src/domains/booking/bookingRepository';
 import { db } from '../src/shared/db';
 import { AppError, UserErrorCode } from '../src/shared/error';
 

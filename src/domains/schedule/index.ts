@@ -2,8 +2,8 @@
  * Schedule domain exports
  */
 
-export * from './types';
-export * from './repository';
-export * from './service';
-export * from './controller';
-export * from './routes';
+export * from './scheduleTypes';
+export * from './scheduleRepository';
+export * from './scheduleService';
+export * from './scheduleController';
+export * from './scheduleRoutes';

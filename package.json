@@ -13,6 +13,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "migrate": "tsx node_modules/knex/bin/cli.js migrate:latest",
+    "migrate:rollback": "tsx node_modules/knex/bin/cli.js migrate:rollback",
+    "migrate:fresh": "tsx node_modules/knex/bin/cli.js migrate:rollback --all && tsx node_modules/knex/bin/cli.js migrate:latest",
     "seed": "tsx node_modules/knex/bin/cli.js seed:run"
   },
   "keywords": [],
@@ -27,7 +29,6 @@
     "jsonwebtoken": "^9.0.3",
     "knex": "^3.2.9",
     "mysql2": "^3.22.3",
-    "swagger-ui-express": "^5.0.1",
     "uuid": "^14.0.0",
     "winston": "^3.19.0"
   },

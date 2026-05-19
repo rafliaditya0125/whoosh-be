@@ -2,8 +2,8 @@
  * User domain exports
  */
 
-export * from './types';
-export * from './repository';
-export * from './service';
-export * from './controller';
-export * from './routes';
+export * from './userTypes';
+export * from './userRepository';
+export * from './userService';
+export * from './userController';
+export * from './userRoutes';

@@ -1,10 +1,8 @@
 import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
-import swaggerUi from 'swagger-ui-express';
 
 import { seatService } from './domains/seat';
-import swaggerDocument from './json/openapi.json';
 import routes from './routes';
 import { errorHandler } from './shared/middleware';
 
@@ -29,9 +27,6 @@ app.use((_req, res, next) => {
 
 app.use(cors());
 app.use(express.json());
-
-// Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api', routes);
 

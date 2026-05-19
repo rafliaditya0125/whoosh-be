@@ -2,8 +2,8 @@
  * Station domain exports
  */
 
-export * from './types';
-export * from './repository';
-export * from './service';
-export * from './controller';
-export * from './routes';
+export * from './stationTypes';
+export * from './stationRepository';
+export * from './stationService';
+export * from './stationController';
+export * from './stationRoutes';
