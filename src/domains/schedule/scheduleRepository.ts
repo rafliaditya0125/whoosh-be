@@ -1,5 +1,6 @@
 import { Schedule, CreateSchedule } from './scheduleTypes';
 import { db } from '../../shared/db';
+import { formatMySQLDateTime } from '../../shared/dateUtils';
 
 /**
  * Schedule repository interface
@@ -107,7 +108,7 @@ export class ScheduleRepositoryImpl implements ScheduleRepository {
         .where('bookings.schedule_id', scheduleId)
         .where('seats.class', className)
         .whereIn('bookings.status', ['paid', 'pending', 'completed'])
-        .count('booking_passengers.id as count')
+        .count('booking_passengers.passenger_id as count')
         .first();
 
       const lockedSeats = await db('seat_locks')
@@ -130,11 +131,20 @@ export class ScheduleRepositoryImpl implements ScheduleRepository {
   }
 
   async create(data: CreateSchedule): Promise<string[]> {
-    return db('schedules').insert(data);
+    const formattedData = {
+      ...data,
+      departure_time: formatMySQLDateTime(data.departure_time),
+      arrival_time: formatMySQLDateTime(data.arrival_time)
+    };
+    return db('schedules').insert(formattedData);
   }
 
   async update(id: string, data: Partial<Schedule>): Promise<void> {
-    await db('schedules').where({ schedule_id: id }).update(data);
+    const formattedData = { ...data };
+    if (data.departure_time) formattedData.departure_time = formatMySQLDateTime(data.departure_time);
+    if (data.arrival_time) formattedData.arrival_time = formatMySQLDateTime(data.arrival_time);
+    
+    await db('schedules').where({ schedule_id: id }).update(formattedData);
   }
 
   async delete(id: string): Promise<void> {

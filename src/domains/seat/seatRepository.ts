@@ -1,5 +1,6 @@
 import { Seat, SeatLock, AvailableSeatResponse } from './seatTypes';
 import { db } from '../../shared/db';
+import { formatMySQLDateTime } from '../../shared/dateUtils';
 
 /**
  * Seat repository interface
@@ -92,7 +93,12 @@ export class SeatRepositoryImpl implements SeatRepository {
   }
 
   async createLock(locks: Partial<SeatLock>[]): Promise<void> {
-    await db('seat_locks').insert(locks);
+    const formattedLocks = locks.map(lock => ({
+      ...lock,
+      locked_at: lock.locked_at ? formatMySQLDateTime(lock.locked_at) : undefined,
+      expires_at: lock.expires_at ? formatMySQLDateTime(lock.expires_at) : undefined,
+    }));
+    await db('seat_locks').insert(formattedLocks);
   }
 
   async updateLockStatus(lockId: string, status: string): Promise<void> {

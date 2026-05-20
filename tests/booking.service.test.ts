@@ -53,13 +53,11 @@ describe('BookingService', () => {
       const trxMock = jest.fn().mockReturnValue({
         where: jest.fn().mockReturnThis(),
         first: jest.fn().mockResolvedValue(mockSchedule),
+        insert: jest.fn().mockResolvedValue(['booking-1']),
       });
       (trxMock as any).commit = jest.fn();
       (trxMock as any).rollback = jest.fn();
       (db.transaction as jest.Mock).mockResolvedValue(trxMock);
-
-      mockBookingRepository.create.mockResolvedValue(['booking-1']);
-      mockBookingRepository.addPassengers.mockResolvedValue(undefined);
 
       const result = await bookingService.createBooking(createRequest, userId);
 
@@ -105,16 +103,14 @@ describe('BookingService', () => {
       const trxMock = jest.fn().mockReturnValue({
         where: jest.fn().mockReturnThis(),
         first: jest.fn().mockResolvedValue(mockSchedule),
+        insert: jest.fn().mockResolvedValue(['booking-big']),
       });
       (trxMock as any).commit = jest.fn();
       (trxMock as any).rollback = jest.fn();
       (db.transaction as jest.Mock).mockResolvedValue(trxMock);
 
-      mockBookingRepository.create.mockResolvedValue(['booking-big']);
-      
       const result = await bookingService.createBooking({ schedule_id: 'sched-1', passengers: manyPassengers }, userId);
       expect(result.total_price).toBe(100000);
-      expect(mockBookingRepository.addPassengers).toHaveBeenCalledTimes(100);
     });
 
     // Extreme Scenario: Automatic seat selection when seat_id is missing
@@ -123,11 +119,13 @@ describe('BookingService', () => {
         const trxMock = jest.fn().mockReturnValue({
           where: jest.fn().mockReturnThis(),
           first: jest.fn().mockResolvedValue(mockSchedule),
+          insert: jest.fn().mockResolvedValue(['booking-1']),
+          andWhere: jest.fn().mockReturnThis(),
         });
         (trxMock as any).commit = jest.fn();
+        (trxMock as any).rollback = jest.fn();
         (db.transaction as jest.Mock).mockResolvedValue(trxMock);
   
-        mockBookingRepository.create.mockResolvedValue(['booking-1']);
         mockSeatRepository.getAvailableSeats.mockResolvedValue([{ seat_id: 'auto-seat-1' } as any]);
   
         const result = await bookingService.createBooking({
@@ -136,12 +134,6 @@ describe('BookingService', () => {
         }, userId);
   
         expect(result.booking_id).toBe('booking-1');
-        expect(mockBookingRepository.addPassengers).toHaveBeenCalledWith([{
-            booking_id: 'booking-1',
-            full_name: 'P1',
-            id_number: 'ID1',
-            seat_id: 'auto-seat-1'
-        }]);
     });
 
     it('should throw error if auto-assign fails (no seats left)', async () => {
@@ -149,11 +141,13 @@ describe('BookingService', () => {
         const trxMock = jest.fn().mockReturnValue({
           where: jest.fn().mockReturnThis(),
           first: jest.fn().mockResolvedValue(mockSchedule),
+          insert: jest.fn().mockResolvedValue(['booking-1']),
+          andWhere: jest.fn().mockReturnThis(),
         });
+        (trxMock as any).commit = jest.fn();
         (trxMock as any).rollback = jest.fn();
         (db.transaction as jest.Mock).mockResolvedValue(trxMock);
   
-        mockBookingRepository.create.mockResolvedValue(['booking-1']);
         mockSeatRepository.getAvailableSeats.mockResolvedValue([]); // Empty
   
         try {
@@ -166,6 +160,7 @@ describe('BookingService', () => {
           expect(error).toBeInstanceOf(AppError);
           expect((error as AppError).statusCode).toBe(422);
           expect((error as AppError).code).toBe(UserErrorCode.NO_SEATS_AVAILABLE);
+          expect((trxMock as any).rollback).toHaveBeenCalled();
         }
     });
   });

@@ -1,4 +1,5 @@
 import { db } from '../../shared/db';
+import { formatMySQLDateTime } from '../../shared/dateUtils';
 
 /**
  * Booking repository interface
@@ -62,7 +63,7 @@ export interface CreateBooking {
  * Booking passenger interface
  */
 export interface BookingPassenger {
-  id: string;
+  passenger_id: string;
   booking_id: string;
   full_name: string;
   id_number: string;
@@ -119,7 +120,9 @@ export class BookingRepositoryImpl implements BookingRepository {
   }
 
   async create(data: Partial<Booking>): Promise<string[]> {
-    return db('bookings').insert(data);
+    const formattedData = { ...data };
+    if (data.booking_date) formattedData.booking_date = formatMySQLDateTime(data.booking_date);
+    return db('bookings').insert(formattedData);
   }
 
   async updateStatus(id: string, status: string): Promise<void> {
@@ -127,7 +130,12 @@ export class BookingRepositoryImpl implements BookingRepository {
   }
 
   async addPassengers(passengers: Partial<BookingPassenger>[]): Promise<void> {
-    await db('booking_passengers').insert(passengers);
+    const formattedPassengers = passengers.map(p => ({
+      ...p,
+      created_at: p.created_at ? formatMySQLDateTime(p.created_at) : undefined,
+      updated_at: p.updated_at ? formatMySQLDateTime(p.updated_at) : undefined,
+    }));
+    await db('booking_passengers').insert(formattedPassengers);
   }
 
   async getPassengers(bookingId: string): Promise<BookingPassenger[]> {
@@ -138,7 +146,9 @@ export class BookingRepositoryImpl implements BookingRepository {
   }
 
   async createRefund(data: any): Promise<number[]> {
-    return db('refunds').insert(data);
+    const formattedData = { ...data };
+    if (data.refund_date) formattedData.refund_date = formatMySQLDateTime(data.refund_date);
+    return db('refunds').insert(formattedData);
   }
 
   async getRefundById(id: string): Promise<any> {
@@ -146,7 +156,10 @@ export class BookingRepositoryImpl implements BookingRepository {
   }
 
   async createRescheduleHistory(data: any): Promise<number[]> {
-    return db('reschedule_history').insert(data);
+    const formattedData = { ...data };
+    if (data.old_departure_time) formattedData.old_departure_time = formatMySQLDateTime(data.old_departure_time);
+    if (data.new_departure_time) formattedData.new_departure_time = formatMySQLDateTime(data.new_departure_time);
+    return db('reschedule_history').insert(formattedData);
   }
 
   async updateBookingSchedule(bookingId: string, scheduleId: string): Promise<void> {

@@ -25,18 +25,21 @@ Ensure you have the following installed on your local machine:
 ## Installation & Setup
 
 1. **Clone the repository** (if you haven't already):
+
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/rafliaditya0125/whoosh-be.git
    cd whoosh-be
    ```
 
 2. **Install dependencies**:
+
    ```bash
    npm install
    ```
 
 3. **Environment Configuration**:
    Copy `.env.example` to `.env` and fill in your database credentials:
+
    ```bash
    cp .env.example .env
    ```
@@ -62,27 +65,32 @@ Ensure you have the following installed on your local machine:
 The full API Documentation is provided in `docs/API_Documentation.md`. Below is a brief summary of available endpoints:
 
 ### Authentication
+
 - `POST /api/auth/register`: Create a new user account.
 - `POST /api/auth/login`: Authenticate and receive a JWT.
 - `GET /api/auth/me`: Get info about current decoded token.
 
 ### User & Passengers
+
 - `GET /api/users/profile`: Show current user's profile.
 - `PUT /api/users/profile`: Update user details.
 - `GET /api/saved-passengers`: Fetch user's fast-booking passenger lists.
 
 ### Core Domain
+
 - `GET /api/stations`: List active stations.
 - `GET /api/trains`: List trains.
 - `GET /api/schedules`: List available train schedules.
 - `GET /api/seats/train/:trainId`: View seats.
 
 ### Secure Transactions
+
 - `POST /api/bookings`: Create a new booking for a schedule containing passengers.
 - `GET /api/bookings/my`: View all past/current bookings.
 - `POST /api/payments/booking/:bookingId`: Pay an existing pending booking.
 
 ## Tech Stack
+
 - Express
 - TypeScript
 - Knex.js
