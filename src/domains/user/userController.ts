@@ -43,6 +43,7 @@ export class UserControllerImpl implements UserController {
       if (!user) {
         throw new AppError('User not found', 404, ErrorCode.NOT_FOUND);
       }
+      console.log("PROFILE FETCHED USER:", user);
 
       response.json({
         user_id: user.user_id,
@@ -50,6 +51,8 @@ export class UserControllerImpl implements UserController {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        is_active: user.is_active,
+        created_at: user.created_at,
       });
     } catch (error) {
       next(error); // Let error handler middleware handle all errors

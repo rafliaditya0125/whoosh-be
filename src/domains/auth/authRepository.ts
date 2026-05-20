@@ -19,6 +19,7 @@ export interface AuthUser {
   phone: string;
   password_hash: string;
   role: 'user' | 'admin';
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }

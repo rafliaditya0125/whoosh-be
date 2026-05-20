@@ -11,7 +11,8 @@ export interface User {
   email: string;
   phone: string;
   password_hash: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'manager' | 'admin';
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }

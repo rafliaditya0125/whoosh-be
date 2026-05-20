@@ -57,6 +57,8 @@ export class AuthServiceImpl implements AuthService {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        is_active: user.is_active,
+        created_at: user.created_at,
       },
     };
   }
@@ -203,6 +205,8 @@ export class AuthServiceImpl implements AuthService {
       email: user.email,
       phone: user.phone,
       role: user.role,
+      is_active: user.is_active,
+      created_at: user.created_at,
     };
   }
 }
